@@ -136,9 +136,9 @@ var astar = {
       return (D * (d1 + d2)) + ((D2 - (2 * D)) * Math.min(d1, d2));
     },
     hexagonal: function (pos0, pos1) {
-      cube0 = AxialToCube(pos0);
-      cube1 = AxialToCube(pos1);
-      return Math.max(Math.abs(cube0.x - cube1.x), Math.abs(cube0.y - cube1.y), Mathf.abs(cube0.z - cube1.z));
+      var cube0 = AxialToCube(pos0);
+      var cube1 = AxialToCube(pos1);
+      return Math.max(Math.abs(cube0.x - cube1.x), Math.abs(cube0.y - cube1.y), Math.abs(cube0.z - cube1.z));
     }
   },
   cleanNode: function(node) {
@@ -176,12 +176,16 @@ function Graph(gridIn, options) {
   //this.diagonal = !!options.diagonal;
   this.grid = [];
   for (var x = 0; x < gridIn.length; x++) {
-    this.grid[x] = [];
+    if (gridIn[ x ] !== undefined) {
+      this.grid[ x ] = [];
 
-    for (var y = 0, row = gridIn[x]; y < row.length; y++) {
-      var node = new GridNode(x, y, row[y]);
-      this.grid[x][y] = node;
-      this.nodes.push(node);
+      for (var y = 0, row = gridIn[ x ]; y < row.length; y++) {
+        if (row[ y ] !== undefined) {
+          var node = new GridNode(x, y, row[ y ]);
+          this.grid[ x ][ y ] = node;
+          this.nodes.push(node);
+        }
+      }
     }
   }
   this.init();
