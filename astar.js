@@ -34,19 +34,32 @@ function getHeap() {
 }
 
 var astar = {
+
+  // Performs an A* Search looking for the nearest node that satisfy the provided conditions predicate
+  getClosestMatchingPoint: function (graph, start, conditions) {
+    return astar.search(graph, start, null, conditions)
+  },
+
+  // Performs an A* Search looking for the shortest path between the start and end node
+  getPathToTargetPoint: function (graph, start, end) {
+    return astar.search(graph, start, end,
+      (cPoint) => { return cPoint.x === end.x && cPoint.y === end.y; }); // Return true if the current node IS the end node
+  },
+
   /**
   * Perform an A* Search on a graph given a start and end node.
   * @param {Graph} graph
   * @param {GridNode} start
   * @param {GridNode} end
+  * @param {Predicate} conditions specifiying if we've reached our destination
   * @param {Object} [options]
   * @param {bool} [options.closest] Specifies whether to return the
              path to the closest node if the target is unreachable.
   */
-  search: function(graph, start, end, options) {
+  search: function(graph, start, end, conditions, options) {
     graph.cleanDirty();
     options = options || {};
-    var heuristic = astar.heuristics.hexagonal;
+    var heuristic = end ? astar.heuristics.hexagonal : astar.heuristics.none; // If the endpoint is not known, we cannot rely on heuristics
     var closest = options.closest || false;
 
     var openHeap = getHeap();
@@ -63,7 +76,7 @@ var astar = {
       var currentNode = openHeap.pop();
 
       // End case -- result has been found, return the traced path.
-      if (currentNode === end) {
+      if (conditions(currentNode)) {
         return pathTo(currentNode);
       }
 
@@ -120,7 +133,8 @@ var astar = {
 
     // No result was found - empty array signifies failure to find path.
     return [];
-  },
+   },
+
   // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
   heuristics: {
     manhattan: function(pos0, pos1) {
@@ -139,6 +153,9 @@ var astar = {
       var cube0 = AxialToCube(pos0);
       var cube1 = AxialToCube(pos1);
       return Math.max(Math.abs(cube0.x - cube1.x), Math.abs(cube0.y - cube1.y), Math.abs(cube0.z - cube1.z));
+    },
+    none: function (pos0, pos1) { // Used when the endpoint of the search is not known
+      return 0;
     }
   },
   cleanNode: function(node) {
@@ -151,6 +168,7 @@ var astar = {
   }
 };
 
+//Converts an Axial or X/Y Hex Coordinate System to a CubePoint
 function AxialToCube(axialPos) {
   var cube = {};
   cube.x = axialPos.x;
@@ -159,6 +177,7 @@ function AxialToCube(axialPos) {
   return cube;
 }
 
+//Converts a CubePoint to an Axial or X/Y Hex Coordinate System
 function CubeToAxial(cubePos) {
   var axial = {};
   axial.x = cubePos.x;
