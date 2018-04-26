@@ -4,6 +4,14 @@
 
 See a demo at http://www.briangrinstead.com/files/astar/
 
+*Modified by QuickCharge Games*
+
+- Changed to ONLY export to Node-style modules (to get it to play well with Rollup)
+- Added the ability to search using _hexagonal_ heuristics
+- Added search for nodes that match given criteria
+
+*Note that tests are currently broken*
+
 ## Sample Usage
 
 If you want just the A* search code (not the demo visualization), use code like this http://gist.github.com/581352
@@ -24,7 +32,7 @@ If you want just the A* search code (not the demo visualization), use code like 
 		[0,1,1,0],
 		[0,0,1,1]
 	], { diagonal: true });
-	
+
 	var start = graphDiagonal.grid[0][0];
 	var end = graphDiagonal.grid[1][2];
 	var resultWithDiagonals = astar.search(graphDiagonal, start, end, { heuristic: astar.heuristics.diagonal });
